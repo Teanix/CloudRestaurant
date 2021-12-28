@@ -1,0 +1,25 @@
+{
+    "app_name":"CloudRestaurant",
+    "app_mode":"debug",
+    "app_host":"localhost",
+    "app_port":"10086",
+
+    "sms":{
+        "comment":"短信字段需要自己定义",
+        "sign_name":"null",
+        "template_code":"null",
+        "app_key":"null",
+        "app_secret":"null",
+        "region_id":"cn-hangzhou"
+    },
+    "database":{
+        "driver":"mysql",
+        "user":"root",
+        "password":"123456",
+        "host":"127.0.0.1",
+        "port":"3306",
+        "db_name":"cloudrestaurant",
+        "char_set":"utf8",
+        "isShowsql":true
+    }
+}
