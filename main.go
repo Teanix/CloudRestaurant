@@ -28,3 +28,10 @@ func registerRouter(router *gin.Engine) {
 	new(controller.HelloController).Router(router)
 	new(controller.MemberController).Router(router)
 }
+
+//跨域访问  cross origin resource share
+func Cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		
+	}
+}

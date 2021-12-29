@@ -12,6 +12,28 @@ type MemberDao struct {
 	*tool.Orm
 }
 
+//根据电话查询用户
+func (md *MemberDao) QueryByPhone(phone string) *model.Member {
+	var member model.Member
+
+	if _, err := md.Where("mobile = ?").Get(&member); err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return &member
+}
+
+//插入新用户
+func (md *MemberDao) InsertMember(member model.Member) int64 {
+	res, err := md.InsertOne(&member)
+	if err != nil {
+		fmt.Println(err.Error())
+		return 0
+	}
+	return res
+}
+
+//根据手机及验证码查询数据库
 func (md *MemberDao) ValidateSmsCode(phone string, code string) *model.Smscode {
 	var sms model.Smscode
 
@@ -22,6 +44,7 @@ func (md *MemberDao) ValidateSmsCode(phone string, code string) *model.Smscode {
 	return &sms
 }
 
+//插入电话及验证码
 func (md *MemberDao) InsertCode(sms model.Smscode) int64 {
 	result, err := md.InsertOne(&sms)
 	if err != nil {

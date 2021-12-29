@@ -13,7 +13,7 @@ type MemberController struct {
 
 func (mc *MemberController) Router(engine *gin.Engine) {
 	engine.GET("/api/sendcode", mc.Sendcode)
-	engine.OPTIONS("/api/login_sms", mc.SmsLogin)
+	engine.POST("/api/login_sms", mc.SmsLogin)
 }
 
 func (mc *MemberController) Sendcode(context *gin.Context) {
@@ -43,8 +43,8 @@ func (mc *MemberController) SmsLogin(context *gin.Context) {
 	//完成手机+验证码登陆的逻辑
 	us := service.MemberService{}
 	if member := us.SmsLogin(smsLoginParam); member != nil {
-		tool.Success(context, "member success", member)
+		tool.Success(context, "member Login success", member)
 		return
 	}
-	tool.Failed(context, "member Failed")
+	tool.Failed(context, "member Login Failed")
 }

@@ -68,9 +68,25 @@ func (ms *MemberService) Sendcode(phone string) bool {
 func (ms *MemberService) SmsLogin(loginparam param.SmsLoginParam) *model.Member {
 	//todo
 	//1.获取到手机号+验证码
+	md := dao.MemberDao{tool.Dbengine}
+	sms := md.ValidateSmsCode(loginparam.Phone, loginparam.Code)
 
 	//2.验证是否正确
+	if sms.Id == 0 {
+		return nil
+	}
 	//3.根据手机号查询记录
+	member := md.QueryByPhone(loginparam.Phone)
+	if member.Id != 0 {
+		return member
+	}
 	// 若不存在则新创建且保存
-	return nil
+	user := model.Member{}
+	user.UserName = loginparam.Phone
+	user.Mobile = loginparam.Phone
+	user.RegisterTime = time.Now().Unix()
+
+	user.Id = md.InsertMember(user)
+
+	return &user
 }
