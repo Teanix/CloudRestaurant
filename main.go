@@ -21,11 +21,15 @@ func main() {
 	if err != nil {
 		logger.Error(err.Error())
 	}
+	//初始化Redis
+	tool.InitRedisStore()
+	//生成webapp
 	app := gin.Default()
-	registerRouter(app)
-
 	//设置全局跨域访问
 	app.Use(Cors())
+	//路由配置
+	registerRouter(app)
+
 	app.Run(cfg.AppHost + ":" + cfg.AppPort)
 }
 
@@ -41,7 +45,7 @@ func Cors() gin.HandlerFunc {
 		method := context.Request.Method
 		origin := context.Request.Header.Get("Origin")
 		var headerKeys []string
-		for key, _ := range context.Request.Header {
+		for key := range context.Request.Header {
 			headerKeys = append(headerKeys, key)
 		}
 		headerStr := strings.Join(headerKeys, ",")

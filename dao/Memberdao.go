@@ -12,6 +12,17 @@ type MemberDao struct {
 	*tool.Orm
 }
 
+//根据电话和密码查询用户
+func (md *MemberDao) Query(name string, password string) *model.Member {
+	var member model.Member
+	password = tool.EncoderSha256(password)
+	if _, err := md.Where("user_name = ? and password = ?", name, password).Get(&member); err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+	return &member
+}
+
 //根据电话查询用户
 func (md *MemberDao) QueryByPhone(phone string) *model.Member {
 	var member model.Member

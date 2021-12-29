@@ -90,3 +90,22 @@ func (ms *MemberService) SmsLogin(loginparam param.SmsLoginParam) *model.Member 
 
 	return &user
 }
+
+//登录
+func (ms *MemberService) Login(name string, password string) *model.Member {
+	// 1.使用用户名+密码查询是否存在
+	md := dao.MemberDao{tool.Dbengine}
+	if member := md.Query(name, password); member.Id != 0 {
+		return member
+	}
+	// 2.若不存在则创建
+	user := model.Member{}
+	user.UserName = name
+	user.Password = tool.EncoderSha256(password) //对用户密码进行加密
+	user.RegisterTime = time.Now().Unix()
+
+	res := md.InsertMember(user)
+	user.Id = res
+
+	return &user
+}

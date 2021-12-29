@@ -44,3 +44,9 @@ func GenerateCaptcha(context *gin.Context) {
 		"captcha_result": captchaResult,
 	})
 }
+
+//验证图形码
+func VertifyCaptcha(id string, value string) bool {
+	res := base64Captcha.VerifyCaptcha(id, value)
+	return res
+}
