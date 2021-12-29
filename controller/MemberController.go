@@ -14,6 +14,7 @@ type MemberController struct {
 func (mc *MemberController) Router(engine *gin.Engine) {
 	engine.GET("/api/sendcode", mc.Sendcode)
 	engine.POST("/api/login_sms", mc.SmsLogin)
+	engine.GET("/api/captcha", mc.Captcha)
 }
 
 func (mc *MemberController) Sendcode(context *gin.Context) {
@@ -27,7 +28,7 @@ func (mc *MemberController) Sendcode(context *gin.Context) {
 	ms := service.MemberService{}
 	isSend := ms.Sendcode(phone)
 	if isSend {
-		tool.Success(context, "send success", "success")
+		tool.Success(context, "send success")
 	} else {
 		tool.Failed(context, "send error")
 	}
@@ -43,8 +44,13 @@ func (mc *MemberController) SmsLogin(context *gin.Context) {
 	//完成手机+验证码登陆的逻辑
 	us := service.MemberService{}
 	if member := us.SmsLogin(smsLoginParam); member != nil {
-		tool.Success(context, "member Login success", member)
+		tool.Success(context, member)
 		return
 	}
 	tool.Failed(context, "member Login Failed")
+}
+
+//生成验证码,并返回客户端
+func (mc *MemberController) Captcha(context *gin.Context) {
+	tool.GenerateCaptcha(context)
 }

@@ -12,18 +12,19 @@ const (
 )
 
 //普通成功返回
-func Success(ctx *gin.Context, msg interface{}, v interface{}) {
-	ctx.JSON(http.StatusOK, gin.H{
+func Success(ctx *gin.Context, v interface{}) {
+	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"code": SUCCESS,
-		"msg":  msg,
+		"msg":  "Success",
 		"data": v,
 	})
 }
 
-func Failed(ctx *gin.Context, msg interface{}) {
-	ctx.JSON(http.StatusOK, gin.H{
+func Failed(ctx *gin.Context, v interface{}) {
+	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"code": FAILED,
-		"msg":  msg,
+		"msg":  "Failed",
+		"data": v,
 	})
 }
 
