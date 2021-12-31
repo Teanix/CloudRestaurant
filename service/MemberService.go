@@ -109,3 +109,11 @@ func (ms *MemberService) Login(name string, password string) *model.Member {
 
 	return &user
 }
+
+func (ms *MemberService) UploadAvator(userID int64, fileName string) string {
+	memberDao := dao.MemberDao{tool.Dbengine}
+	if result := memberDao.UpdateMemberAvatar(userID, fileName); result == 0 {
+		return ""
+	}
+	return fileName
+}

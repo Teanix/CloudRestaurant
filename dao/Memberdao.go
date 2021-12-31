@@ -63,3 +63,14 @@ func (md *MemberDao) InsertCode(sms model.Smscode) int64 {
 	}
 	return result
 }
+
+//更新用户头像信息
+func (md *MemberDao) UpdateMemberAvatar(userID int64, fileName string) int64 {
+	member := model.Member{Avatar: fileName}
+	res, err := md.Where("id = ?", userID).Update(&member)
+	if err != nil {
+		fmt.Println(err.Error())
+		return 0
+	}
+	return res
+}

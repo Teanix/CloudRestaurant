@@ -29,6 +29,8 @@ func main() {
 	app.Use(Cors())
 	//路由配置
 	registerRouter(app)
+	//集成session功能
+	tool.InitSession(app)
 
 	app.Run(cfg.AppHost + ":" + cfg.AppPort)
 }

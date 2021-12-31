@@ -1,10 +1,14 @@
 package controller
 
 import (
+	"CloudRestaurant/model"
 	"CloudRestaurant/param"
 	"CloudRestaurant/service"
 	"CloudRestaurant/tool"
+	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,8 +20,9 @@ func (mc *MemberController) Router(engine *gin.Engine) {
 	engine.GET("/api/sendcode", mc.Sendcode)
 	engine.POST("/api/login_sms", mc.SmsLogin)
 	engine.GET("/api/captcha", mc.Captcha)
-	engine.GET("/api/vertifycha", mc.Vertifycha)
+	engine.POST("/api/vertifycha", mc.Vertifycha)
 	engine.POST("/api/login_pwd", mc.NameLogin)
+	engine.POST("/api/upload/avator", mc.UploadAvator)
 }
 
 func (mc *MemberController) Sendcode(context *gin.Context) {
@@ -47,6 +52,12 @@ func (mc *MemberController) SmsLogin(context *gin.Context) {
 	//完成手机+验证码登陆的逻辑
 	us := service.MemberService{}
 	if member := us.SmsLogin(smsLoginParam); member != nil {
+		//将用户信息保存到session中
+		sess, _ := json.Marshal(member)
+		if err := tool.SetSess(context, "user_"+string(member.Id), sess); err != nil {
+			tool.Failed(context, "session Set Failed")
+			return
+		}
 		tool.Success(context, member)
 		return
 	}
@@ -90,8 +101,49 @@ func (mc *MemberController) NameLogin(context *gin.Context) {
 
 	member := ms.Login(loginParam.Name, loginParam.Password)
 	if member.Id != 0 {
+		//将用户信息保存到session中
+		sess, _ := json.Marshal(member)
+		if err := tool.SetSess(context, "user_"+string(rune(member.Id)), sess); err != nil {
+			tool.Failed(context, "session set  error")
+			return
+		}
+
 		tool.Success(context, &member)
 		return
 	}
 	tool.Failed(context, "login error")
+}
+
+//头像文件上传
+func (mc *MemberController) UploadAvator(context *gin.Context) {
+	// 1.解析上传的参数：image-file , user-ID
+	userID := context.PostForm("user_id")
+	fmt.Println(userID)
+	file, err := context.FormFile("avator")
+	if err != nil {
+		tool.Failed(context, "avator decode error")
+		return
+	}
+	// 2.通过session判断用户是否已经登录
+	sess := tool.GetSess(context, "user_"+userID)
+	if sess == nil {
+		tool.Failed(context, "get user session error")
+		return
+	}
+	var member model.Member
+	json.Unmarshal(sess.([]byte), &member) //将session的内容设置为member的内容
+	// 3.将file保存到本地
+	fileName := "./uploadfile/" + strconv.FormatInt(time.Now().Unix(), 10) + file.Filename
+	if err := context.SaveUploadedFile(file, fileName); err != nil {
+		tool.Failed(context, "save avator error")
+		return
+	}
+	// 4.将路径保存到用户表中的头像字段
+	memberService := service.MemberService{}
+	path := memberService.UploadAvator(member.Id, fileName[1:])
+	if path != "" {
+		tool.Success(context, "http://localhost:8090"+path)
+	}
+	tool.Failed(context, "upload avator error")
+	// 5.返回结果
 }
