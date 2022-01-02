@@ -7,6 +7,7 @@ import (
 	"CloudRestaurant/tool"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -95,6 +96,7 @@ func (mc *MemberController) NameLogin(context *gin.Context) {
 	// 2.验证验证码
 	if !(tool.VertifyCaptcha(loginParam.Id, loginParam.Value)) {
 		tool.Failed(context, "captcha error,Please try again")
+		return
 	}
 	// 3.登录
 	ms := service.MemberService{}
@@ -102,8 +104,13 @@ func (mc *MemberController) NameLogin(context *gin.Context) {
 	member := ms.Login(loginParam.Name, loginParam.Password)
 	if member.Id != 0 {
 		//将用户信息保存到session中
-		sess, _ := json.Marshal(member)
-		if err := tool.SetSess(context, "user_"+string(rune(member.Id)), sess); err != nil {
+		sess, err := json.Marshal(member)
+		if err != nil {
+			fmt.Println("json Marshal error!")
+			return
+		}
+		// if err := tool.SetSess(context, "user_16"+string(member.Id), sess); err != nil {
+		if err := tool.SetSess(context, "user_16", sess); err != nil {
 			tool.Failed(context, "session set  error")
 			return
 		}
@@ -118,8 +125,8 @@ func (mc *MemberController) NameLogin(context *gin.Context) {
 func (mc *MemberController) UploadAvator(context *gin.Context) {
 	// 1.解析上传的参数：image-file , user-ID
 	userID := context.PostForm("user_id")
-	fmt.Println(userID)
-	file, err := context.FormFile("avator")
+	fmt.Println("userID >>", userID)
+	file, err := context.FormFile("avatar")
 	if err != nil {
 		tool.Failed(context, "avator decode error")
 		return
@@ -138,12 +145,19 @@ func (mc *MemberController) UploadAvator(context *gin.Context) {
 		tool.Failed(context, "save avator error")
 		return
 	}
-	// 4.将路径保存到用户表中的头像字段
-	memberService := service.MemberService{}
-	path := memberService.UploadAvator(member.Id, fileName[1:])
-	if path != "" {
-		tool.Success(context, "http://localhost:8090"+path)
+	//3.1 将文件上传到fdfs
+	fileID := tool.UploadFile(fileName)
+	if fileID != "" {
+		//删除本地的文件
+		os.Remove(fileName)
+		//将路径保存到用户表中的头像字段
+		memberService := service.MemberService{}
+		path := memberService.UploadAvator(member.Id, fileID)
+		if path != "" {
+			tool.Success(context, tool.FileServerAddr()+"/"+path)
+		}
 	}
+
 	tool.Failed(context, "upload avator error")
 	// 5.返回结果
 }

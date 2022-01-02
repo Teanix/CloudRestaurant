@@ -24,8 +24,12 @@ func OrmEngine(cfg *Config) (*Orm, error) {
 
 	//是否提示操作状态
 	engine.ShowSQL(dbconfig.IsShowsql)
-	// 将结构体映射为数据库的表
-	err = engine.Sync2(new(model.Smscode), new(model.Member))
+
+	//初始化时将结构体映射为数据库的表
+	err = engine.Sync2(
+		new(model.Smscode),
+		new(model.Member),
+		new(model.FoodCategory))
 	if err != nil {
 		return nil, err
 	}

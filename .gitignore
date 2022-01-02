@@ -5,6 +5,7 @@
 *.so
 *.dylib
 app.json
+fastdfs.conf
 # Test binary, built with `go test -c`
 *.test
 

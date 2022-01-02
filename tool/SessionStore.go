@@ -20,7 +20,9 @@ func InitSession(engine *gin.Engine) {
 //set session
 func SetSess(context *gin.Context, key interface{}, value interface{}) error {
 	session := sessions.Default(context) //获取当前Session
+	fmt.Println("key:", key, "value:", value)
 	session.Set(key, value)
+	fmt.Println("set session load")
 	return session.Save()
 }
 
