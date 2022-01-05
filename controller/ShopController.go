@@ -26,11 +26,20 @@ func (sc *ShopController) GetShopList(context *gin.Context) {
 
 	shopService := service.ShopService{}
 	shops := shopService.ShopList(longitude, latitude)
-	if len(shops) != 0 {
-		tool.Success(context, shops)
+	if len(shops) == 0 {
+		tool.Failed(context, "shoplist get error")
 		return
 	}
-	tool.Failed(context, "shoplist get error")
+
+	for _, shop := range shops {
+		shopServices := shopService.GetShopServiceById(shop.Id)
+		if len(shopServices) == 0 {
+			shop.Supports = nil
+		} else {
+			shop.Supports = shopServices
+		}
+	}
+	tool.Success(context, shops)
 }
 
 //关键词搜索商铺信息

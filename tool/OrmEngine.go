@@ -31,7 +31,9 @@ func OrmEngine(cfg *Config) (*Orm, error) {
 		new(model.Smscode),
 		new(model.Member),
 		new(model.FoodCategory),
-		new(model.Shop))
+		new(model.Shop),
+		new(model.Service),
+		new(model.ShopService))
 	if err != nil {
 		return nil, err
 	}

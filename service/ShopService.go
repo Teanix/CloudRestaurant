@@ -38,3 +38,9 @@ func (ss *ShopService) SearchShops(long, lat, keyword string) []model.Shop {
 
 	return shopDao.QueryShops(longitude, latitude, keyword)
 }
+
+func (ss *ShopService) GetShopServiceById(shopID int64) []model.Service {
+	shopDao := dao.NewShopDao()
+
+	return shopDao.QueryShopServiceById(shopID)
+}

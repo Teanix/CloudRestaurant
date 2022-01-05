@@ -42,3 +42,14 @@ func (sd *ShopDao) QueryShops(longitude, latitude float64, keyword string) []mod
 
 	return shops
 }
+
+//根据商户ID查询对应服务
+func (sd *ShopDao) QueryShopServiceById(shopId int64) []model.Service {
+	var services []model.Service
+
+	err := sd.Orm.Table("service").Join("INNER", "shop_service", "srevice.id = shop_service.service_id and shop_service.shop_id = ?", shopId).Find(&services)
+	if err != nil {
+		return nil
+	}
+	return services
+}
