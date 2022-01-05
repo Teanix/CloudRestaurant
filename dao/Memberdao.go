@@ -74,3 +74,12 @@ func (md *MemberDao) UpdateMemberAvatar(userID int64, fileName string) int64 {
 	}
 	return res
 }
+
+func (md *MemberDao) QueryMemberById(userID int64) *model.Member {
+	var member model.Member
+	_, err := md.Orm.Where("id = ?", userID).Get(&member)
+	if err != nil {
+		return nil
+	}
+	return &member
+}

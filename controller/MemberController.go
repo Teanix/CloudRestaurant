@@ -24,6 +24,7 @@ func (mc *MemberController) Router(engine *gin.Engine) {
 	engine.POST("/api/vertifycha", mc.Vertifycha)
 	engine.POST("/api/login_pwd", mc.NameLogin)
 	engine.POST("/api/upload/avator", mc.UploadAvator)
+	engine.POST("/api/userinfo", mc.UserInfo)
 }
 
 func (mc *MemberController) Sendcode(context *gin.Context) {
@@ -59,6 +60,8 @@ func (mc *MemberController) SmsLogin(context *gin.Context) {
 			tool.Failed(context, "session Set Failed")
 			return
 		}
+		//设置cookie
+		context.SetCookie("cookie_user", strconv.Itoa(int(member.Id)), 10*60, "/", "localhost", true, true)
 		tool.Success(context, member)
 		return
 	}
@@ -160,4 +163,31 @@ func (mc *MemberController) UploadAvator(context *gin.Context) {
 
 	tool.Failed(context, "upload avator error")
 	// 5.返回结果
+}
+
+//对用户信息进行查询
+func (mc *MemberController) UserInfo(context *gin.Context) {
+	//1.判断用户是否登录
+	cookie, err := tool.CookieAuth(context)
+	if err != nil {
+		context.Abort() //???
+		tool.Failed(context, "no login,Please login first")
+		return
+	}
+	memberService := service.MemberService{}
+	member := memberService.GetUserInfo(cookie.Value)
+	if member != nil {
+
+		tool.Success(context, gin.H{
+			"id":            member.Id,
+			"user_name":     member.UserName,
+			"mobile":        member.Mobile,
+			"register_time": member.RegisterTime,
+			"avator":        member.Avatar,
+			"balance":       member.Balance,
+			"city":          member.City,
+		})
+		return
+	}
+	tool.Failed(context, "get user info error")
 }

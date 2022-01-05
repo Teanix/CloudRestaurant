@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
@@ -116,4 +117,15 @@ func (ms *MemberService) UploadAvator(userID int64, fileName string) string {
 		return ""
 	}
 	return fileName
+}
+
+func (ms *MemberService) GetUserInfo(userID string) *model.Member {
+	id, err := strconv.Atoi(userID)
+	if err != nil {
+		return nil
+	}
+
+	memberDao := dao.MemberDao{tool.Dbengine}
+
+	return memberDao.QueryMemberById(int64(id))
 }
