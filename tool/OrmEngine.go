@@ -33,7 +33,8 @@ func OrmEngine(cfg *Config) (*Orm, error) {
 		new(model.FoodCategory),
 		new(model.Shop),
 		new(model.Service),
-		new(model.ShopService))
+		new(model.ShopService),
+		new(model.Goods))
 	if err != nil {
 		return nil, err
 	}
@@ -41,8 +42,8 @@ func OrmEngine(cfg *Config) (*Orm, error) {
 	orm.Engine = engine
 	Dbengine = orm //进行全局赋值
 
-	//初始化shop数据
-	//InitShopData()
+	//InitShopData() //初始化shop数据
+	//InitGoodsData() //初始化goods数据
 	return orm, nil
 }
 
@@ -95,4 +96,39 @@ func InitShopData() {
 		fmt.Println(err.Error())
 	}
 
+}
+
+//初始化商品数据
+func InitGoodsData() {
+	goods := []model.Goods{
+		{Id: 1, Name: "小小鲜肉包", Description: "滑蛋牛肉粥(1份)+小小鲜肉包(4只)", SellCount: 14, Price: 25, OldPrice: 29, ShopId: 1},
+		{Id: 2, Name: "滑蛋牛肉粥+小小鲜肉包", Description: "滑蛋牛肉粥(1份)+小小鲜肉包(3只)", SellCount: 6, Price: 35, OldPrice: 41, ShopId: 1},
+		{Id: 3, Name: "滑蛋牛肉粥+绿甘蓝馅饼", Description: "滑蛋牛肉粥(1份)+绿甘蓝馅饼(1张)", SellCount: 2, Price: 25, OldPrice: 30, ShopId: 1},
+		{Id: 4, Name: "茶香卤味蛋", Description: "咸鸡蛋", SellCount: 688, Price: 2.5, OldPrice: 3, ShopId: 1},
+		{Id: 5, Name: "韭菜鸡蛋馅饼(2张)", Description: "韭菜鸡蛋馅饼", SellCount: 381, Price: 10, OldPrice: 12, ShopId: 1},
+		{Id: 6, Name: "小小鲜肉包+豆浆套餐", Description: "小小鲜肉包(8只)装+豆浆(1杯)", SellCount: 335, Price: 9.9, OldPrice: 11.9, ShopId: 479},
+		{Id: 7, Name: "翠香炒素饼", Description: "咸鲜翠香素炒饼", SellCount: 260, Price: 17.9, OldPrice: 20.9, ShopId: 485},
+		{Id: 8, Name: "香煎鲜肉包", Description: "咸鲜猪肉鲜肉包", SellCount: 173, Price: 10.9, OldPrice: 12.9, ShopId: 486}}
+
+	//多条数据-启用事务
+	//事务
+	session := Dbengine.NewSession()
+	defer session.Close()
+
+	//事务操作:开始-执行-回滚-提交
+	err := session.Begin()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	for _, shop := range goods {
+		_, err := session.Insert(&shop)
+		if err != nil {
+			session.Rollback() //回滚
+			return
+		}
+	}
+	err = session.Commit()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
